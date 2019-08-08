@@ -10,13 +10,25 @@ ENV CGO_ENABLED=0
 
 RUN mkdir -p /go/src/handler
 WORKDIR /go/src/handler
+
+ARG GO111MODULE="off"
+ARG GOPROXY=""
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+WORKDIR /go/src/handler/function
+COPY function/go.mod .
+COPY function/go.sum .
+RUN go mod download
+
+WORKDIR /go/src/handler
+
 COPY . .
 
 # Run a gofmt and exclude all vendored code.
 RUN test -z "$(gofmt -l $(find . -type f -name '*.go' -not -path "./vendor/*" -not -path "./function/vendor/*"))" || { echo "Run \"gofmt -s -w\" on your Golang code"; exit 1; }
-
-ARG GO111MODULE="off"
-ARG GOPROXY=""
 
 RUN go build --ldflags "-s -w" -a -installsuffix cgo -o handler .
 RUN go test ./function/... -cover
