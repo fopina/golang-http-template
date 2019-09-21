@@ -1,4 +1,4 @@
-FROM openfaas/of-watchdog:0.5.3 as watchdog
+FROM openfaas/of-watchdog:0.7.2 as watchdog
 FROM golang:1.12.6-alpine3.10 as build
 
 RUN apk --no-cache add git
